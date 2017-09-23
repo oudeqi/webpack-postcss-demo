@@ -1,0 +1,7 @@
+.root {
+  background-color: #eee;
+  padding: 10px;
+  border: 3px solid #bbb;
+  box-sizing: border-box;
+  color: red;
+}

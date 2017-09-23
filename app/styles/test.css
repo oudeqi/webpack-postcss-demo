@@ -1,0 +1,12 @@
+.test{
+	box-sizing: border-box;
+	color: red;
+	font-size: 50px;
+	border:1px solid #ddd;
+	line-height: 1;
+	background-image: url('../images/test-large-pic2.png');
+}
+
+.test2{
+	background-image: url('../images/amuse-i.png');
+}
