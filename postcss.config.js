@@ -1,8 +1,4 @@
 module.exports = {
-	// plugins: {
-	// 	'precss': {},
-	// 	'autoprefixer': {}
-	// }
     plugins: [
     	require('precss')(),
 		// require('postcss-px-to-viewport')({

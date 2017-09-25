@@ -7,7 +7,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const resolve = function(dir) {
     return path.join(__dirname, '..', dir)
-}
+};
 
 //-----------------------------------------------------
 const getJsEntry = function(globPath) {
@@ -21,16 +21,19 @@ const getJsEntry = function(globPath) {
         }
     });
     return entries;
-}
+};
 
 let entryJs = getJsEntry('./app/*.html');
 entryJs.vendor = ['jquery','bootstrap','moment'];
+entryJs.commoncss = ['bootstrap/dist/css/bootstrap.css'];
+
 /*
     //entryJs
     {
         index: './app/scripts/index.js',
         test: './app/scripts/test.js',
-        vendor: ['jquery','bootstrap','moment']
+        vendor: ['jquery','bootstrap','moment'],
+        commoncss: ['bootstrap/dist/css/bootstrap.css']
     }
 */
 
@@ -72,13 +75,14 @@ const getHtmlEntry = function(globPath) {
             pathname = path.dirname(entry);
         config.filename = basename + '.html';
         config.template = 'html-withimg-loader!' + 'app/' + basename + '.html';
-        let chunks = ['vendor', 'manifest'];
+        let chunks = ['vendor', 'manifest', 'commoncss'];//, 'commoncss'
             chunks.push('' + basename);
         config.chunks = chunks;
         entries.push(config);
     });
     return entries;
-}
+};
+
 const htmlEntry = getHtmlEntry('./app/*.html');
 htmlEntry.forEach(function(item,index){
     plugins.push(new HtmlWebpackPlugin(item));

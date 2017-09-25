@@ -1,6 +1,6 @@
 /*precss 特性 */
 /*
-	Imports:你可以设置一个partials文件夹，
+	import:你可以设置一个partials文件夹，
 	放置一些逻辑上分散的文件，你可以通过下面的方式导入：
 */
 /*
@@ -10,6 +10,7 @@
 	@import "partials/_extends.css";
 */
 @import "./test.css";
+/*import 必须写在开头第一行*/
 
 /*
 	嵌套：PreCSS和其的预处理器一样，

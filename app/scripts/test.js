@@ -12,7 +12,8 @@ import moment from 'moment';
 console.log(moment);
 
 
-import 'bootstrap/dist/css/bootstrap.css';
+// import 'bootstrap/dist/css/bootstrap.css';
+// bootstrap.css 通过入口处引入
 import 'bootstrap';
 
 $('#modal-btn').click(function(){
