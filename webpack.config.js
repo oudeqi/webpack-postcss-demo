@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
 
 const resolve = function(dir) {
     return path.join(__dirname, '..', dir)
@@ -22,11 +23,6 @@ const getJsEntry = function(globPath) {
     });
     return entries;
 };
-
-let entryJs = getJsEntry('./app/*.html');
-entryJs.vendor = ['jquery','bootstrap','moment'];
-entryJs.commoncss = ['bootstrap/dist/css/bootstrap.css'];
-
 /*
     //entryJs
     {
@@ -38,35 +34,6 @@ entryJs.commoncss = ['bootstrap/dist/css/bootstrap.css'];
 */
 
 //-----------------------------------------------------
-const plugins = [
-    new CleanWebpackPlugin(['build']),
-    new webpack.optimize.OccurrenceOrderPlugin(),//为组件分配ID
-    new webpack.DefinePlugin({
-        'process.env.NODE_ENV': '"production"',
-    }),
-    new webpack.ProvidePlugin({
-        $: "jquery",
-        jQuery: "jquery"
-    }),
-    new webpack.BannerPlugin('版权所有，翻版必究'),
-    new webpack.optimize.UglifyJsPlugin({//压缩JS代码
-     compress: {
-            warnings: false,
-            drop_console: false,
-        }
-    }),
-    //---------------提取公告模块
-    new webpack.optimize.CommonsChunkPlugin({
-        name: ['vendor', 'manifest'],
-        minChunks: Infinity,
-        filename: 'assets/scripts/[name].[id].[chunkhash:8].js',
-    }),
-    new ExtractTextPlugin({//分离CSS和JS文件
-        filename: 'assets/styles/bundle-[name]-[id]-[contenthash:8].css',
-        allChunks: false
-    })
-];
-
 const getHtmlEntry = function(globPath) {
     let entries = [];
     Glob.sync(globPath).forEach(function (entry) {
@@ -75,7 +42,7 @@ const getHtmlEntry = function(globPath) {
             pathname = path.dirname(entry);
         config.filename = basename + '.html';
         config.template = 'html-withimg-loader!' + 'app/' + basename + '.html';
-        let chunks = ['vendor', 'manifest', 'commoncss'];//, 'commoncss'
+        let chunks = ['vendor', 'manifest'];//, 'manifest'
             chunks.push('' + basename);
         config.chunks = chunks;
         entries.push(config);
@@ -83,15 +50,13 @@ const getHtmlEntry = function(globPath) {
     return entries;
 };
 
-const htmlEntry = getHtmlEntry('./app/*.html');
-htmlEntry.forEach(function(item,index){
-    plugins.push(new HtmlWebpackPlugin(item));
-});
-
 //-----------------------------------------------------
 module.exports = {
 	devtool: 'eval-source-map',
-	entry: entryJs,
+	entry: Object.assign({}, getJsEntry('./app/*.html'), {
+        vendor: ['jquery','bootstrap','moment','bootstrap/dist/css/bootstrap.css']
+        //将bootstrap的样式，也加入到vendor中
+    }),
 	output: {
 		path: path.join(__dirname, "build"),
 		filename: 'assets/scripts/bundle.[name].[id].[chunkhash:8].js',
@@ -103,6 +68,9 @@ module.exports = {
  //            '@': resolve('app')
  //        }
  //    },
+    // externals: {
+    //     jquery: 'jQuery'//jquery不会被打包，需要手动通过外部引用的方法
+    // },
 	devServer: {
         // contentBase: path.join(__dirname, "build"),
         headers: {
@@ -172,6 +140,7 @@ module.exports = {
                             interpolate: true,
                         }
                     }
+                    
                 ]
             },
 		    {
@@ -184,5 +153,35 @@ module.exports = {
             }
 		]
 	},
-	plugins: plugins
+	plugins: [
+        new CleanWebpackPlugin(['build']),
+        new webpack.optimize.OccurrenceOrderPlugin(),//为组件分配ID
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"',
+        }),
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            jQuery: "jquery"
+        }),
+        new webpack.BannerPlugin('版权所有，翻版必究'),
+        new webpack.optimize.UglifyJsPlugin({//压缩JS代码
+         compress: {
+                warnings: false,
+                drop_console: false,
+            }
+        }),
+        //---------------提取公告模块
+        new webpack.optimize.CommonsChunkPlugin({
+            name: ['vendor', 'manifest'],
+            minChunks: Infinity,
+            filename: 'assets/scripts/[name].[id].[chunkhash:8].js',
+        }),
+        new ExtractTextPlugin({//分离CSS和JS文件
+            filename: 'assets/styles/bundle-[name]-[id]-[contenthash:8].css',
+            allChunks: false
+        }),
+        ...getHtmlEntry('./app/*.html').map((item, index) => {
+            return new HtmlWebpackPlugin(item)
+        })
+    ]
 }
